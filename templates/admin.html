@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HeartScript Admin - Control Panel</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+    <style>
+        :root {
+            --primary: #ff416c;
+            --secondary: #ff4b2b;
+            --dark: #2c3e50;
+            --light: #f4f7f6;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--light);
+            margin: 0;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* --- SIDEBAR (Desktop) --- */
+        .sidebar {
+            width: 250px;
+            background: var(--dark);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            padding: 20px;
+            z-index: 1000;
+            transition: 0.3s;
+            overflow-y: auto;
+        }
+
+        .sidebar h2 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 30px;
+            font-family: 'Georgia', serif;
+        }
+
+        .sidebar nav {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar a {
+            display: block;
+            color: white;
+            padding: 12px;
+            text-decoration: none;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            background: var(--primary);
+        }
+
+        /* --- MAIN CONTENT --- */
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+            width: calc(100% - 250px);
+            transition: 0.3s;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        /* --- CARDS & FORMS --- */
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        @media (min-width: 992px) {
+            .full-row-textarea {
+                grid-column: span 3;
+            }
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #e0365d;
+        }
+
+        /* --- TABLE DESIGN --- */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            background: white;
+            border-radius: 10px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 850px;
+        }
+
+        th,
+        td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            vertical-align: top;
+        }
+
+        th {
+            background: #eee;
+            color: var(--dark);
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 1px;
+        }
+
+        /* --- STYLED BOXES --- */
+        .address-box {
+            font-size: 13px;
+            color: #555;
+            line-height: 1.4;
+            max-width: 250px;
+        }
+
+        .story-box {
+            background: #fff0f3;
+            border-left: 4px solid var(--primary);
+            padding: 10px;
+            border-radius: 5px;
+            font-style: italic;
+            font-size: 13px;
+            color: #4a0404;
+            max-width: 300px;
+            word-wrap: break-word;
+        }
+
+        .badge {
+            background: #eee;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .btn-delete {
+            color: #e74c3c;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 18px;
+            border: none;
+            background: none;
+            transition: 0.2s;
+        }
+
+        .btn-delete:hover {
+            transform: scale(1.2);
+            color: #c0392b;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .alert-success { background: #d4edda; color: #155724; }
+        .alert-danger { background: #f8d7da; color: #721c24; }
+
+        .file-label {
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--dark);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        /* --- MOBILE RESPONSIVE UPDATES --- */
+        @media (max-width: 992px) {
+            body {
+                flex-direction: column;
+                font-size: 13px;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: sticky;
+                top: 0;
+                padding: 10px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            }
+
+            .sidebar h2 {
+                margin-bottom: 10px;
+                font-size: 1.2rem;
+            }
+
+            .sidebar nav {
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 5px;
+            }
+
+            .sidebar a {
+                margin-bottom: 0;
+                font-size: 11px;
+                padding: 6px 10px;
+                white-space: nowrap;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 12px;
+            }
+
+            .header h1 {
+                font-size: 1.2rem;
+            }
+
+            .card {
+                padding: 15px;
+                margin-bottom: 15px;
+                border-radius: 8px;
+            }
+
+            h3 {
+                font-size: 1rem;
+            }
+
+            input,
+            select,
+            textarea,
+            button {
+                font-size: 13px;
+                padding: 10px;
+            }
+
+            th,
+            td {
+                padding: 10px;
+                font-size: 12px;
+            }
+
+            .story-box,
+            .address-box {
+                font-size: 11px;
+                max-width: 180px;
+            }
+
+            .category-pill span {
+                font-size: 0.75rem !important;
+            }
+        }
+
+        /* Image Preview Style */
+        .preview-img-container {
+            display: flex;
+            gap: 5px;
+        }
+        .preview-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 5px;
+            object-fit: cover;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar">
+        <h2>HeartScript</h2>
+        <nav>
+            <a href="/"><i class="fas fa-home"></i> Site</a>
+            <a href="#orders"><i class="fas fa-shopping-cart"></i> Orders</a>
+            <a href="#categories"><i class="fas fa-folder"></i> Cats</a>
+            <a href="#products"><i class="fas fa-box"></i> Products</a>
+            <a href="/logout" style="background: #c0392b;"><i class="fas fa-sign-out-alt"></i> Out</a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+
+        <div class="header">
+            <h1>Admin Dashboard 📊</h1>
+            <span class="badge" style="background: var(--primary); color: white;">OFFICIAL</span>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div id="categories" class="card" style="padding: 20px; border-radius: 15px; background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+            <h3 style="margin-top: 0; color: #2b2d42; font-family: 'Playfair Display', serif; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-folder-plus" style="color: #ff4d6d;"></i> Categories
+            </h3>
+
+            <form action="/add_category" method="POST" style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; margin-bottom: 20px;">
+                <input type="text" name="name" placeholder="Name (e.g. Love Letters)" style="flex: 1; min-width: 150px;" required>
+                <button type="submit" style="background: #2ecc71; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-plus-circle"></i> Add
+                </button>
+            </form>
+
+            <hr style="border: 0; border-top: 1px solid #f5f5f5; margin-bottom: 15px;">
+
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+                {% for cat in categories %}
+                    <div class="category-pill" style="display: flex; align-items: center; background: #fff0f3; border: 1px solid #ffccd5; padding: 5px 10px; border-radius: 50px; gap: 8px;">
+                        <span style="color: #590d22; font-weight: 600; font-size: 0.8rem;">
+                            {{ cat.name }}
+                        </span>
+                        <a href="javascript:void(0)" onclick="premiumConfirm('/delete_category/{{ cat.id }}', 'Category: {{ cat.name }}')" style="color: #ff4d6d; text-decoration: none; font-size: 0.7rem; background: white; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid #ffccd5;">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    </div>
+                {% endfor %}
+                {% if not categories %}
+                    <p style="color: #999; font-size: 0.85rem; font-style: italic;">No categories yet.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div id="products" class="card">
+            <h3><i class="fas fa-plus-circle"></i> Add New Product (3 Images)</h3>
+            <form action="/add_product" method="POST" enctype="multipart/form-data">
+                <div class="form-row">
+                    <div>
+                        <label class="file-label">Product Name</label>
+                        <input type="text" name="name" placeholder="Luxury Love Letter" required>
+                    </div>
+                    <div>
+                        <label class="file-label">Price (₹)</label>
+                        <input type="number" name="price" placeholder="149" required>
+                    </div>
+                    <div>
+                        <label class="file-label">Category</label>
+                        <select name="category_id" required>
+                            <option value="">Select Category</option>
+                            {% for cat in categories %}
+                                <option value="{{ cat.id }}">{{ cat.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div>
+                        <label class="file-label">Image 1 (Main)</label>
+                        <input type="file" name="product_image1" accept="image/*">
+                    </div>
+                    <div>
+                        <label class="file-label">Image 2</label>
+                        <input type="file" name="product_image2" accept="image/*">
+                    </div>
+                    <div>
+                        <label class="file-label">Image 3</label>
+                        <input type="file" name="product_image3" accept="image/*">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div>
+                        <label class="file-label">Manual URL 1</label>
+                        <input type="text" name="manual_image_url1" placeholder="https://image1.jpg">
+                    </div>
+                    <div>
+                        <label class="file-label">Manual URL 2</label>
+                        <input type="text" name="manual_image_url2" placeholder="https://image2.jpg">
+                    </div>
+                    <div>
+                        <label class="file-label">Manual URL 3</label>
+                        <input type="text" name="manual_image_url3" placeholder="https://image3.jpg">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="full-row-textarea">
+                        <label class="file-label">Product Description</label>
+                        <textarea name="description" placeholder="Write the 'Story' of this piece..." rows="3" required></textarea>
+                    </div>
+                    <div style="align-self: end;">
+                        <button type="submit" style="width: 100%; margin-top: 10px;">Publish Masterpiece</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div id="orders" class="card">
+            <h3><i class="fas fa-list"></i> Orders</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Order</th>
+                            <th>Customer</th>
+                            <th>Address</th>
+                            <th>Personalization</th>
+                            <th>Status</th>
+                            <th>Item</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                            <tr>
+                                <td>
+                                    <b>#{{ order.id }}</b><br>
+                                    <small>{{ order.date_ordered.strftime('%d %b') if order.date_ordered else 'N/A' }}</small>
+                                </td>
+                                <td>
+                                    <strong>{{ order.name }}</strong><br>
+                                    <small>{{ order.phone }}</small>
+                                </td>
+                                <td>
+                                    <div class="address-box">
+                                        {{ order.house_no }}, {{ order.address }}<br>
+                                        <b>PIN:</b> {{ order.pincode }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="story-box">{{ order.custom_details }}</div>
+                                </td>
+                                <td>
+                                    <select onchange="changeStatus('{{ order.id }}', this.value)" style="padding: 5px; border-radius: 5px; border: 1px solid var(--primary); font-size: 11px; width: auto;">
+                                        <option value="Pending" {% if order.status == 'Pending' %}selected{% endif %}>Pending</option>
+                                        <option value="Processing" {% if order.status == 'Processing' %}selected{% endif %}>Processing</option>
+                                        <option value="Shipped" {% if order.status == 'Shipped' %}selected{% endif %}>Shipped</option>
+                                        <option value="Out for Delivery" {% if order.status == 'Out for Delivery' %}selected{% endif %}>Out for Delivery</option>
+                                        <option value="Delivered" {% if order.status == 'Delivered' %}selected{% endif %}>Delivered</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <span class="badge" style="background: #fdf2f2;">{{ order.items }}</span><br>
+                                    <b style="color: var(--primary);">₹{{ order.total }}</b>
+                                </td>
+                                <td>
+                                    <button onclick="premiumConfirm('/delete_order/{{ order.id }}', 'Order #{{ order.id }}')" class="btn-delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    <br>
+                                    <a href="/download_invoice/{{ order.id }}" style="font-size: 10px; text-decoration: none; color: #2c3e50;">
+                                        <i class="fas fa-file-pdf"></i> PDF
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-boxes"></i> Collection Overview</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Previews</th>
+                            <th>Product</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in products %}
+                            <tr>
+                                <td>
+                                    <div class="preview-img-container">
+                                        <img src="{{ product.image_url1 or product.image_url }}" class="preview-img" alt="img1">
+                                        {% if product.image_url2 %}
+                                            <img src="{{ product.image_url2 }}" class="preview-img" alt="img2">
+                                        {% endif %}
+                                        {% if product.image_url3 %}
+                                            <img src="{{ product.image_url3 }}" class="preview-img" alt="img3">
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td><b>{{ product.name }}</b></td>
+                                <td><span class="badge">{{ product.category_ref.name if product.category_ref else 'N/A' }}</span></td>
+                                <td>₹{{ product.price }}</td>
+                                <td>
+                                    <button onclick="premiumConfirm('/delete_product/{{ product.id }}', 'Product: {{ product.name }}')" style="color: red; background:none; border:none; cursor:pointer; font-size: 12px; font-weight: bold;">
+                                        <i class="fas fa-times"></i> Remove
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function premiumConfirm(url, itemName) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: `Delete "${itemName}" permanently?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ff416c',
+                cancelButtonColor: '#2c3e50',
+                confirmButtonText: '<i class="fas fa-trash"></i> Delete',
+                cancelButtonText: 'Cancel',
+                showClass: { popup: 'animate__animated animate__zoomIn' },
+                hideClass: { popup: 'animate__animated animate__fadeOut' },
+                borderRadius: '15px'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({ title: 'Removing...', icon: 'success', showConfirmButton: false, timer: 1000 });
+                    setTimeout(() => { window.location.href = url; }, 1000);
+                }
+            });
+        }
+
+        function changeStatus(orderId, status) {
+            fetch(`/update_status/${orderId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ status: status })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 });
+                    Toast.fire({ icon: 'success', title: `Order #${orderId} is ${status}` });
+                }
+            })
+            .catch(err => {
+                Swal.fire({ icon: 'error', title: 'Error', text: 'Update failed!' });
+            });
+        }
+    </script>
+</body>
+
+</html>
