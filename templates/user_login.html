@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome Back | HeartScript</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Playfair+Display:wght@700&family=Great+Vibes&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #ff416c;
+            --secondary: #ff4b2b;
+            --dark: #1a1a1a;
+            --soft-white: rgba(255, 255, 255, 0.85);
+        }
+
+        body {
+            background: linear-gradient(135deg, #fff5f6 0%, #fdfcfb 100%);
+            font-family: 'Poppins', sans-serif;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* --- ANIMATED BACKGROUND ELEMENTS --- */
+        .bg-shape {
+            position: absolute;
+            z-index: -1;
+            filter: blur(60px);
+            border-radius: 50%;
+            opacity: 0.45;
+            animation: floatShape 10s infinite alternate cubic-bezier(0.45, 0, 0.55, 1);
+        }
+        .shape-1 { width: 400px; height: 400px; background: var(--primary); top: -150px; right: -120px; }
+        .shape-2 { width: 350px; height: 350px; background: var(--secondary); bottom: -100px; left: -120px; animation-delay: -2s; }
+
+        @keyframes floatShape {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(30px, 60px) scale(1.1); }
+        }
+
+        /* --- LOGIN CARD CONTAINER --- */
+        .login-container {
+            background: var(--soft-white);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 50px 45px;
+            border-radius: 35px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.1);
+            max-width: 440px;
+            width: 90%;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            animation: slideInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            z-index: 10;
+        }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .brand-name {
+            font-family: 'Great Vibes', cursive;
+            font-size: 3.5rem;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 2px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .tagline {
+            text-align: center;
+            color: #666;
+            font-size: 0.95rem;
+            margin-bottom: 40px;
+            font-weight: 300;
+        }
+
+        /* --- FORM STYLING --- */
+        .input-group {
+            margin-bottom: 20px;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: 0.3s;
+        }
+
+        .input-group-text {
+            background: rgba(255, 255, 255, 0.5);
+            border: 1.5px solid #eee;
+            border-right: none;
+            color: #bbb;
+            border-radius: 15px 0 0 15px !important;
+            padding-left: 20px;
+            transition: 0.3s;
+        }
+
+        .form-control {
+            border-radius: 0 15px 15px 0 !important;
+            padding: 14px 18px;
+            border: 1.5px solid #eee;
+            border-left: none;
+            font-size: 0.95rem;
+            background: rgba(255, 255, 255, 0.5);
+            transition: 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: #eee;
+            box-shadow: none;
+            background: white;
+        }
+
+        .input-group:focus-within .input-group-text {
+            color: var(--primary);
+            border-color: var(--primary);
+            background: white;
+        }
+
+        .input-group:focus-within .form-control {
+            border-color: var(--primary);
+            background: white;
+        }
+
+        /* Forgot Password Section */
+        .forgot-pass-wrapper {
+            text-align: right;
+            margin-top: -12px;
+            margin-bottom: 25px;
+        }
+        .forgot-pass-link {
+            font-size: 0.85rem;
+            color: #999;
+            text-decoration: none;
+            transition: 0.3s;
+            font-weight: 500;
+        }
+        .forgot-pass-link:hover {
+            color: var(--primary);
+        }
+
+        /* Login Button */
+        .btn-login {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            padding: 15px;
+            border-radius: 15px;
+            width: 100%;
+            font-weight: 600;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-top: 5px;
+            transition: 0.4s;
+            box-shadow: 0 10px 25px rgba(255, 65, 108, 0.25);
+        }
+
+        .btn-login:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(255, 65, 108, 0.4);
+            color: white;
+            filter: brightness(1.1);
+        }
+
+        /* Links & Footer */
+        .register-link {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.9rem;
+            color: #777;
+        }
+
+        .register-link a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 700;
+            transition: 0.3s;
+        }
+
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+
+        .alert {
+            border-radius: 18px;
+            font-size: 0.88rem;
+            border: none;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .back-home {
+            text-align: center;
+            margin-top: 25px;
+        }
+
+        .back-home a {
+            color: #bbb;
+            font-size: 0.85rem;
+            text-decoration: none;
+            transition: 0.3s;
+            font-weight: 500;
+        }
+
+        .back-home a:hover {
+            color: var(--dark);
+        }
+
+        /* --- FLOATING HOME BUTTON --- */
+        .floating-home-btn {
+            position: fixed;
+            bottom: 35px;
+            right: 35px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 14px 24px;
+            border-radius: 50px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 12px 25px rgba(255, 65, 108, 0.35);
+            z-index: 1000;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            border: 2px solid rgba(255, 255, 255, 0.25);
+        }
+
+        .floating-home-btn:hover {
+            transform: translateY(-8px) scale(1.08);
+            box-shadow: 0 18px 35px rgba(255, 65, 108, 0.5);
+            color: white;
+        }
+
+        /* --- RESPONSIVE OPTIMIZATION --- */
+        @media (max-width: 768px) {
+            .login-container { padding: 40px 30px; }
+            .brand-name { font-size: 3rem; }
+            .floating-home-btn span { display: none; }
+            .floating-home-btn { padding: 18px; bottom: 25px; right: 25px; }
+            body { overflow: auto; display: block; padding-top: 10vh; }
+            .login-container { margin: 0 auto; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="bg-shape shape-1"></div>
+<div class="bg-shape shape-2"></div>
+
+<div class="login-container">
+    <div class="brand-name">HeartScript</div>
+    <p class="tagline">The art of letters awaits you!</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show" role="alert">
+            <i class="fas {% if category == 'success' %}fa-check-circle{% else %}fa-exclamation-triangle{% endif %} me-2"></i> 
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('user_login') }}" method="POST">
+        <div class="mb-3">
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                <input type="email" name="email" class="form-control" placeholder="Email Address" required autocomplete="email">
+            </div>
+        </div>
+
+        <div class="mb-2"> 
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                <input type="password" name="password" id="passwordField" class="form-control" placeholder="Password" required autocomplete="current-password">
+                <span class="input-group-text" style="cursor: pointer; border-radius: 0 15px 15px 0 !important; border-left: none;" onclick="togglePassword()">
+                    <i class="fas fa-eye" id="toggleIcon"></i>
+                </span>
+            </div>
+        </div>
+
+        <div class="forgot-pass-wrapper">
+            <a href="{{ url_for('forgot_password') }}" class="forgot-pass-link">Forgot Password?</a>
+        </div>
+
+        <button type="submit" class="btn-login">Secure Login</button>
+    </form>
+
+    <div class="register-link">
+        New to HeartScript? <a href="{{ url_for('register') }}">Join the family</a>
+    </div>
+
+    <div class="back-home">
+        <a href="{{ url_for('home') }}">
+            <i class="fas fa-chevron-left me-1"></i> Studio Home
+        </a>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Password visibility toggle
+    function togglePassword() {
+        const passwordField = document.getElementById('passwordField');
+        const toggleIcon = document.getElementById('toggleIcon');
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+            toggleIcon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            passwordField.type = "password";
+            toggleIcon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+    }
+
+    // Auto-hide alerts after 5 seconds
+    setTimeout(() => {
+        let alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            let bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        });
+    }, 5000);
+</script>
+
+{% if request.endpoint != 'home' %}
+<a href="{{ url_for('home') }}" class="floating-home-btn" title="Go to Home">
+    <i class="fas fa-home"></i>
+    <span>Home</span>
+</a>
+{% endif %}
+
+</body>
+</html>
