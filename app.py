@@ -36,15 +36,20 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# --- 2. MongoDB Atlas Setup (The Only Database Now) ---
+# --- 2. MongoDB Atlas Setup (Fixed Declaration) ---
 MONGO_URI = "mongodb+srv://heartscript025_db_user:HeartScript@Admin2025@heartscript.secaej6.mongodb.net/?appName=HeartScript"
+
+# Initialize variables OUTSIDE try block to prevent NameError
+client = MongoClient(MONGO_URI)
+m_db = client.heartscript_db 
+mg_users = m_db.users
+mg_products = m_db.products
+mg_orders = m_db.orders
+mg_categories = m_db.categories
+
 try:
-    client = MongoClient(MONGO_URI)
-    m_db = client.heartscript_db 
-    mg_users = m_db.users
-    mg_products = m_db.products
-    mg_orders = m_db.orders
-    mg_categories = m_db.categories
+    # Trigger a ping to confirm connection
+    client.admin.command('ping')
     print("✅ MongoDB Atlas Connected Successfully & Fully Shifted!")
 except Exception as e:
     print(f"⚠️ MongoDB Connection Error: {e}")
@@ -57,7 +62,6 @@ def login_required(f):
             flash("Please login to proceed.", "info")
             return redirect(url_for('user_login'))
         
-        # Check user in MongoDB
         user = mg_users.find_one({"_id": ObjectId(session['user_id'])})
         if not user:
             session.clear()
@@ -72,8 +76,6 @@ def login_required(f):
 def register():
     if request.method == 'POST':
         email = request.form.get('email')
-        
-        # Check if user exists in MongoDB
         if mg_users.find_one({"email": email}):
             flash("Email already registered!", "danger")
             return redirect(url_for('register'))
@@ -99,7 +101,6 @@ def register():
             'created_at': datetime.utcnow()
         }
 
-        # Check for minimum 3 answers
         ans_keys = ['ans1', 'ans2', 'ans3', 'ans4', 'ans5', 'ans6', 'ans7']
         filled_count = sum(1 for k in ans_keys if user_data[k] != '')
         
@@ -136,7 +137,6 @@ def forgot_password():
     if request.method == 'POST':
         email = request.form.get('email')
         user = mg_users.find_one({"email": email})
-        
         if not user:
             flash("No account found with this email.", "danger")
             return redirect(url_for('forgot_password'))
@@ -169,7 +169,6 @@ def profile():
             "address": request.form.get('address'),
             "pincode": request.form.get('pincode')
         }
-        
         file_to_upload = request.files.get('profile_pic')
         if file_to_upload and file_to_upload.filename != '':
             try:
@@ -199,12 +198,10 @@ def home():
 def shop():
     categories = list(mg_categories.find())
     selected_cat = request.args.get('category')
-    
     if selected_cat and selected_cat != 'None':
         products = list(mg_products.find({"category_id": selected_cat}))
     else:
         products = list(mg_products.find())
-        
     return render_template('shop.html', products=products, categories=categories, selected_cat=selected_cat)
 
 @app.route('/product/<product_id>')
@@ -212,12 +209,10 @@ def product_view(product_id):
     product = mg_products.find_one({"_id": ObjectId(product_id)})
     if not product:
         return "Product Not Found", 404
-        
     related = list(mg_products.find({
         "category_id": product.get("category_id"),
         "_id": {"$ne": ObjectId(product_id)}
     }).limit(3))
-    
     return render_template('product_view.html', product=product, related=related)
 
 # --- 6. Checkout & Order Management ---
@@ -253,7 +248,6 @@ def initiate_payment():
             "status": "COD - Pending",
             "date_ordered": datetime.utcnow()
         }
-        
         result = mg_orders.insert_one(order_data)
         return jsonify({
             "status": "success",
@@ -266,7 +260,6 @@ def initiate_payment():
 def submit_order():
     if 'user_id' not in session:
         return jsonify({"success": False, "message": "Order fail! Please Login or Register first."}), 401
-
     try:
         data = request.get_json()
         order_data = {
@@ -284,7 +277,6 @@ def submit_order():
             "status": "Pending",
             "date_ordered": datetime.utcnow()
         }
-        
         result = mg_orders.insert_one(order_data)
         return jsonify({"success": True, "order_id": str(result.inserted_id)})
     except Exception as e:
@@ -303,7 +295,6 @@ def download_invoice(order_id):
     order = mg_orders.find_one({"_id": ObjectId(order_id)})
     if not order:
         return "Order Not Found", 404
-        
     try:
         try:
             total_amount = float(order.get('total', 0))
@@ -500,7 +491,6 @@ def delete_product(product_id):
 def delete_category(cat_id):
     if not session.get('admin_logged_in'):
         return redirect('/admin_login')
-    # Delete category and its products
     mg_products.delete_many({"category_id": cat_id})
     mg_categories.delete_one({"_id": ObjectId(cat_id)})
     return redirect('/admin')
