@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="robots" content="noindex, nofollow"> <title>Admin Access | HeartScript Artistry</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Great+Vibes&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #ff416c;
+            --secondary: #ff4b2b;
+            --dark: #2c3e50;
+            --bg-gradient: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-gradient);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .login-card {
+            background: white;
+            padding: 50px 40px;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            position: relative;
+            border-top: 6px solid var(--primary);
+            animation: cardFadeIn 0.6s ease-out;
+        }
+
+        @keyframes cardFadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo-text {
+            font-family: 'Great Vibes', cursive;
+            font-size: 48px;
+            color: var(--primary);
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        h2 {
+            color: var(--dark);
+            margin-bottom: 35px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        .input-group i:not(.toggle-password) {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+            transition: var(--transition);
+        }
+
+        input {
+            width: 100%;
+            padding: 16px 15px 16px 50px;
+            border: 2px solid #f0f0f0;
+            border-radius: 14px;
+            box-sizing: border-box;
+            font-size: 16px;
+            transition: var(--transition);
+            outline: none;
+            background: #fdfdfd;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 8px 20px rgba(255, 65, 108, 0.1);
+        }
+
+        input:focus + i {
+            color: var(--primary);
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #888;
+            z-index: 10;
+            padding: 5px;
+            transition: 0.2s;
+        }
+        
+        .toggle-password:hover {
+            color: var(--primary);
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: var(--transition);
+            box-shadow: 0 10px 25px rgba(255, 65, 108, 0.25);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(255, 65, 108, 0.4);
+        }
+
+        button:active {
+            transform: translateY(-1px);
+        }
+
+        .alert {
+            background: #fff5f5;
+            color: #e74c3c;
+            padding: 14px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            font-size: 0.9rem;
+            border: 1px solid #fed7d7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            animation: shake 0.4s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .back-link {
+            margin-top: 30px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #888;
+            text-decoration: none;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .back-link:hover {
+            color: var(--primary);
+            transform: translateX(-3px);
+        }
+
+        /* --- Floating Home Button --- */
+        .floating-home-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 25px rgba(255, 65, 108, 0.35);
+            z-index: 1000;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .floating-home-btn:hover {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 18px 35px rgba(255, 65, 108, 0.5);
+            color: white;
+        }
+
+        /* Hide logic for Home Page */
+        {% if request.endpoint == 'home' %}
+        .floating-home-btn { display: none; }
+        {% endif %}
+
+        @media (max-width: 768px) {
+            .login-card { padding: 40px 25px; }
+            .floating-home-btn span { display: none; }
+            .floating-home-btn { padding: 15px; bottom: 20px; right: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <span class="logo-text">HeartScript</span>
+        <h2>Admin Control</h2>
+
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert">
+                  <i class="fas fa-exclamation-circle"></i> {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <form method="POST" id="adminLoginForm">
+            <div class="input-group">
+                <i class="fas fa-lock"></i>
+                <input type="password" 
+                       name="password" 
+                       id="adminPass" 
+                       placeholder="Security Password" 
+                       required 
+                       autofocus
+                       autocomplete="current-password">
+                <i class="fas fa-eye toggle-password" id="eyeIcon" onclick="togglePass()"></i>
+            </div>
+            <button type="submit" id="submitBtn">Verify & Enter Dashboard</button>
+        </form>
+
+        <a href="{{ url_for('home') }}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Return to Shop
+        </a>
+    </div>
+
+    <a href="{{ url_for('home') }}" class="floating-home-btn" title="Go to Home">
+        <i class="fas fa-home"></i>
+        <span>Home</span>
+    </a>
+
+    <script>
+        // Password Visibility Toggle
+        function togglePass() {
+            const passInput = document.getElementById('adminPass');
+            const eyeIcon = document.getElementById('eyeIcon');
+            
+            if (passInput.type === 'password') {
+                passInput.type = 'text';
+                eyeIcon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                passInput.type = 'password';
+                eyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+
+        // Form Submit Animation
+        const loginForm = document.getElementById('adminLoginForm');
+        const submitBtn = document.getElementById('submitBtn');
+
+        loginForm.onsubmit = function() {
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+            submitBtn.style.opacity = '0.8';
+            submitBtn.style.pointerEvents = 'none';
+        };
+    </script>
+
+</body>
+</html>
