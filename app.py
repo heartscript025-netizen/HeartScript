@@ -1,6 +1,7 @@
 import os
 import io
 import tempfile
+import urllib.parse
 from datetime import datetime, timedelta
 from functools import wraps
 
@@ -26,20 +27,21 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'uploads')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# Ensure folders exist
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
-# Allowed files extensions
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# --- 2. MongoDB Atlas Setup (Fixed Declaration) ---
-MONGO_URI = "mongodb+srv://heartscript025_db_user:HeartScript@Admin2025@heartscript.secaej6.mongodb.net/?appName=HeartScript"
+# --- 2. MongoDB Atlas Setup (Fixed for Deployment) ---
+# Encoding credentials to handle special characters like '@'
+m_user = urllib.parse.quote_plus('heartscript025_db_user')
+m_pass = urllib.parse.quote_plus('HeartScript@Admin2025')
+MONGO_URI = f"mongodb+srv://{m_user}:{m_pass}@heartscript.secaej6.mongodb.net/?retryWrites=true&w=majority&appName=HeartScript"
 
-# Initialize variables OUTSIDE try block to prevent NameError
+# Initialize variables globally to avoid NameError
 client = MongoClient(MONGO_URI)
 m_db = client.heartscript_db 
 mg_users = m_db.users
@@ -48,9 +50,8 @@ mg_orders = m_db.orders
 mg_categories = m_db.categories
 
 try:
-    # Trigger a ping to confirm connection
     client.admin.command('ping')
-    print("✅ MongoDB Atlas Connected Successfully & Fully Shifted!")
+    print("✅ MongoDB Atlas Connected Successfully!")
 except Exception as e:
     print(f"⚠️ MongoDB Connection Error: {e}")
 
