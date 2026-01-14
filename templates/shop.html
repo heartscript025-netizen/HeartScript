@@ -274,8 +274,8 @@
             All Collections
         </a>
         {% for cat in categories %}
-        <a href="{{ url_for('shop', category=cat.id) }}"
-           class="filter-btn {% if selected_cat == cat.id|string %}active{% endif %}">
+        <a href="{{ url_for('shop', category=cat['_id']|string) }}"
+           class="filter-btn {% if selected_cat == cat['_id']|string %}active{% endif %}">
             {{ cat.name }}
         </a>
         {% endfor %}
@@ -287,7 +287,7 @@
             <div class="product-card animate__animated animate__fadeInUp">
                 <div class="exclusive-tag">Exclusive</div>
                 <div class="img-container">
-                    <img src="{{ product.image_url if product.image_url else 'https://via.placeholder.com/500x600?text=HeartScript+Masterpiece' }}"
+                    <img src="{{ product.image_url if product.image_url and not product.image_url.startswith('/static/uploads/') else 'https://via.placeholder.com/500x600?text=HeartScript+Masterpiece' }}"
                          class="product-img"
                          alt="{{ product.name }}"
                          loading="lazy"
@@ -305,7 +305,7 @@
                     </div>
 
                     <div class="btn-actions">
-                        <a href="{{ url_for('product_view', product_id=product.id) }}" class="btn-view-details" title="View Full Art">
+                        <a href="{{ url_for('product_view', product_id=product['_id']) }}" class="btn-view-details" title="View Full Art">
                             <i class="fas fa-expand-alt"></i>
                         </a>
                         <button class="btn-order-quick" onclick="handleQuickOrder('{{ product.name }}', '{{ product.price }}')">
@@ -391,7 +391,6 @@
             document.body.style.overflow = 'auto';
         }
 
-        // Close modal on click outside
         window.onclick = function(event) {
             let modal = document.getElementById('modal-overlay');
             if (event.target == modal) closeCheckout();
