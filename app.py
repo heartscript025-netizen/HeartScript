@@ -15,6 +15,7 @@ from flask import (
 )
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
+# Note: werkzeug.security is used for hashing and checking passwords
 from werkzeug.security import generate_password_hash, check_password_hash
 from fpdf import FPDF
 
@@ -27,6 +28,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'uploads')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+# Ensure upload directory exists
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
@@ -35,13 +37,13 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# --- 2. MongoDB Atlas Setup (Fixed for Deployment) ---
-# Encoding credentials to handle special characters like '@'
+# --- 2. MongoDB Atlas Setup (Full & Final Fix) ---
+# RFC 3986 encoding for special characters like '@' in password
 m_user = urllib.parse.quote_plus('heartscript025_db_user')
 m_pass = urllib.parse.quote_plus('HeartScript@Admin2025')
 MONGO_URI = f"mongodb+srv://{m_user}:{m_pass}@heartscript.secaej6.mongodb.net/?retryWrites=true&w=majority&appName=HeartScript"
 
-# Initialize variables globally to avoid NameError
+# Initialize MongoDB Client
 client = MongoClient(MONGO_URI)
 m_db = client.heartscript_db 
 mg_users = m_db.users
@@ -49,6 +51,7 @@ mg_products = m_db.products
 mg_orders = m_db.orders
 mg_categories = m_db.categories
 
+# Connection Test for Logs
 try:
     client.admin.command('ping')
     print("✅ MongoDB Atlas Connected Successfully!")
@@ -501,6 +504,8 @@ def logout():
     session.clear()
     return redirect(url_for('home'))
 
+# --- Final Step: Port 10000 Fix for Render ---
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
+    # Use 10000 for Render deployment compatibility
+    port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
