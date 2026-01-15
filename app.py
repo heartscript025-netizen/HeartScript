@@ -37,7 +37,8 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# --- 2. MongoDB Atlas Setup ---
+# --- 2. MongoDB Atlas Setup (Full & Final Fix) ---
+# RFC 3986 encoding for special characters like '@' in password
 m_user = urllib.parse.quote_plus('heartscript025_db_user')
 m_pass = urllib.parse.quote_plus('HeartScript@Admin2025')
 MONGO_URI = f"mongodb+srv://{m_user}:{m_pass}@heartscript.secaej6.mongodb.net/?retryWrites=true&w=majority&appName=HeartScript"
@@ -65,16 +66,11 @@ def login_required(f):
             flash("Please login to proceed.", "info")
             return redirect(url_for('user_login'))
         
-        try:
-            user = mg_users.find_one({"_id": ObjectId(session['user_id'])})
-            if not user:
-                session.clear()
-                flash("Account error. Please login again.", "danger")
-                return redirect(url_for('user_login'))
-        except:
+        user = mg_users.find_one({"_id": ObjectId(session['user_id'])})
+        if not user:
             session.clear()
+            flash("Account error. Please login again.", "danger")
             return redirect(url_for('user_login'))
-            
         return f(*args, **kwargs)
     return decorated_function
 
@@ -229,14 +225,18 @@ def product_view(product_id):
 @login_required
 def checkout_page(product_id):
     try:
+        # 1. Product fetch karein
         product = mg_products.find_one({"_id": ObjectId(product_id)})
+        
         if not product:
             flash("Product nahi mila!", "danger")
-            return redirect(url_for('home'))
+            return redirect(url_for('home')) # FIXED: 'index' to 'home'
 
-        # FIXED: Changed 'db' to 'mg_categories'
+        # 2. Categories fetch karein
+        # FIXED: 'db.categories' to 'mg_categories'
         all_categories = list(mg_categories.find())
 
+        # 3. Checkout template par product aur categories dono bhejein
         return render_template('checkout.html', 
                                product=product, 
                                categories=all_categories)
@@ -244,7 +244,7 @@ def checkout_page(product_id):
     except Exception as e:
         print(f"Checkout Error: {e}")
         flash("Kuch galti hui, kripya dubara koshish karein.", "danger")
-        return redirect(url_for('home'))
+        return redirect(url_for('home')) # FIXED: 'index' to 'home'
 
 @app.route('/initiate_payment', methods=['POST'])
 @login_required
@@ -440,7 +440,7 @@ def update_status(order_id):
     if not session.get('admin_logged_in'):
         return jsonify({"success": False, "message": "Unauthorized"}), 403
 
-    new_status = request.form.get('status') or (request.get_json().get('status') if request.is_json else None)
+    new_status = request.form.get('status') or request.get_json().get('status')
     if new_status:
         mg_orders.update_one({"_id": ObjectId(order_id)}, {"$set": {"status": new_status}})
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.is_json:
@@ -468,13 +468,14 @@ def add_product():
         for i in range(1, 4):
             field_name = f'product_image{i}'
             img_file = request.files.get(field_name)
+            
             manual_url = request.form.get(f'manual_image_url{i}')
 
             if img_file and img_file.filename != '':
                 filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{i}_{secure_filename(img_file.filename)}"
                 img_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                 img_file.save(img_path)
-                image_urls.append(filename)
+                image_urls.append(filename) 
             elif manual_url:
                 image_urls.append(manual_url)
             else:
