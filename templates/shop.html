@@ -175,7 +175,7 @@
         }
         .btn-order-quick:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(255, 77, 109, 0.4); }
 
-        /* --- MOBILE LAYOUT (AMAZON STYLE) --- */
+        /* --- MOBILE LAYOUT --- */
         @media (max-width: 600px) {
             .products-grid { display: flex; flex-direction: column; gap: 15px; padding: 10px; }
             .product-card { flex-direction: row; height: 180px; border-radius: 20px; padding: 10px; }
@@ -287,15 +287,19 @@
             <div class="product-card animate__animated animate__fadeInUp">
                 <div class="exclusive-tag">Exclusive</div>
                 <div class="img-container">
-                    <img src="{{ product.image_url if product.image_url and not product.image_url.startswith('/static/uploads/') else 'https://via.placeholder.com/500x600?text=HeartScript+Masterpiece' }}"
-                         class="product-img"
-                         alt="{{ product.name }}"
-                         loading="lazy"
-                         onerror="this.onerror=null; this.src='https://via.placeholder.com/500x600?text=Art+In+Progress';">
+                    {% if product.image_url and (product.image_url.startswith('http') or product.image_url.startswith('https')) %}
+                        <img src="{{ product.image_url }}" class="product-img" alt="{{ product.name }}" loading="lazy" onerror="this.src='https://via.placeholder.com/500x600?text=Image+Not+Found';">
+                    {% elif product.image_url %}
+                        <img src="{{ url_for('static', filename='uploads/' + product.image_url.split('/')[-1]) }}" 
+                             class="product-img" alt="{{ product.name }}" 
+                             onerror="this.src='https://via.placeholder.com/500x600?text=Reload+Image';">
+                    {% else %}
+                        <img src="https://via.placeholder.com/500x600?text=HeartScript+Art" class="product-img" alt="Placeholder">
+                    {% endif %}
                 </div>
                 <div class="product-info">
                     <h3>{{ product.name }}</h3>
-                    <p>{{ product.description[:90] if product.description else 'Exquisite calligraphy handcrafted on museum-grade premium paper for your special moments.' }}...</p>
+                    <p>{{ product.description[:90] if product.description else 'Exquisite calligraphy handcrafted on museum-grade premium paper.' }}...</p>
 
                     <div class="price-row">
                         <span class="price">₹{{ product.price }}</span>
@@ -338,38 +342,23 @@
                 <input type="text" id="cust_pincode" placeholder="Delivery Pincode" maxlength="6">
             </div>
 
-            <textarea id="cust_address" placeholder="Full Delivery Address (House No, Street, Landmark, City)" rows="2" required></textarea>
-
-            <p style="font-size: 0.75rem; font-weight: 800; color: var(--text-muted); margin: 15px 0 5px; text-transform: uppercase; letter-spacing: 1px;">
-                <i class="fas fa-feather"></i> Scripting Details:
-            </p>
-            <textarea id="cust_details" placeholder="What should our artists write? (E.g. Love Letter for Rohan, Birthday Poem for Simran...)" rows="3" style="border: 1.5px dashed var(--romantic-red); background: #fffafb;"></textarea>
+            <textarea id="cust_address" placeholder="Full Delivery Address" rows="2" required></textarea>
+            <textarea id="cust_details" placeholder="What should our artists write?" rows="3" style="border: 1.5px dashed var(--romantic-red); background: #fffafb;"></textarea>
 
             <button class="btn-submit" id="submit-btn" onclick="submitOrder()">
                 Place Cash on Delivery Order
             </button>
-            
-            <p style="text-align: center; font-size: 0.8rem; color: var(--text-muted); margin-top: 18px;">
-                <i class="fab fa-whatsapp" style="color: #25d366;"></i> Proof will be shared on WhatsApp before shipping.
-            </p>
         </div>
     </div>
 
     <footer>
         <div class="footer-logo">HeartScript</div>
-        <p style="font-size: 0.95rem; line-height: 1.7; max-width: 400px; margin: 0 auto;">Preserving your most precious emotions through the timeless elegance of handwriting.</p>
-        
         <div style="margin: 30px 0;">
             <a href="{{ url_for('home') }}" class="btn-return-home">
                 <i class="fas fa-arrow-left"></i> Back to Gallery
             </a>
         </div>
-
-        <div style="margin: 30px 0;">
-            <a href="#" style="color: var(--romantic-red); font-size: 1.8rem; margin: 0 15px;"><i class="fab fa-instagram"></i></a>
-            <a href="#" style="color: var(--romantic-red); font-size: 1.8rem; margin: 0 15px;"><i class="fab fa-facebook"></i></a>
-        </div>
-        <p style="opacity: 0.7; font-size: 0.85rem; color: var(--text-muted); letter-spacing: 1px;">© 2026 HEARTSCRIPT ARTISTRY. HAND-SCRIBED WITH LOVE 💞.</p>
+        <p style="opacity: 0.7; font-size: 0.85rem; color: var(--text-muted);">© 2026 HEARTSCRIPT ARTISTRY.</p>
     </footer>
 
     <a href="https://wa.me/916394174932" class="whatsapp-float" target="_blank">
@@ -416,7 +405,7 @@
             }
 
             btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Preparing your Paper...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Placing Order...';
 
             try {
                 const response = await fetch('/submit_order', {
@@ -424,24 +413,18 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(orderData)
                 });
-                
                 const resData = await response.json();
-                
                 if (resData.order_id) {
                     window.location.href = "/thank_you/" + resData.order_id;
                 } else {
-                    alert("Order Issue: " + resData.message);
+                    alert("Error: " + resData.message);
                     btn.disabled = false;
-                    btn.innerText = "Try Placing Order Again";
                 }
             } catch (err) {
-                console.error("Error:", err);
-                alert("Connection lost. Please check your internet and try again.");
+                alert("Connection lost. Try again.");
                 btn.disabled = false;
-                btn.innerText = "Place Cash on Delivery Order";
             }
         }
     </script>
-
 </body>
 </html>
