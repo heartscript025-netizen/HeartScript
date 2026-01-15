@@ -221,13 +221,31 @@ def product_view(product_id):
 
 # --- 6. Checkout & Order Management ---
 
-@app.route('/checkout/<product_id>')
+from bson import ObjectId # Ensure ye top par imported ho
+
+@app.route('/checkout/<string:product_id>') # <string:> add kiya for safety
 @login_required
 def checkout_page(product_id):
-    product = mg_products.find_one({"_id": ObjectId(product_id)})
-    if not product:
-        return "Product Not Found", 404
-    return render_template('checkout.html', product=product)
+    try:
+        # 1. Product fetch karein
+        product = mg_products.find_one({"_id": ObjectId(product_id)})
+        
+        if not product:
+            flash("Product nahi mila!", "danger")
+            return redirect(url_for('index'))
+
+        # 2. Categories fetch karein (Agar aapke nav/footer mein categories dikhti hain)
+        all_categories = list(db.categories.find())
+
+        # 3. Checkout template par product aur categories dono bhejein
+        return render_template('checkout.html', 
+                               product=product, 
+                               categories=all_categories)
+                               
+    except Exception as e:
+        print(f"Checkout Error: {e}")
+        flash("Kuch galti hui, kripya dubara koshish karein.", "danger")
+        return redirect(url_for('index'))
 
 @app.route('/initiate_payment', methods=['POST'])
 @login_required
