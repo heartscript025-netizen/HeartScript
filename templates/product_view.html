@@ -329,7 +329,7 @@
 
         .btn-order {
             background: linear-gradient(135deg, var(--romantic-red), #ff758c);
-            color: white;
+            color: white !important;
             padding: 20px;
             border-radius: 18px;
             border: none;
@@ -340,6 +340,8 @@
             width: 100%;
             text-transform: uppercase;
             letter-spacing: 1px;
+            text-align: center;
+            text-decoration: none;
         }
 
         .btn-wa {
@@ -546,7 +548,6 @@
                     <i class="fas fa-heart"></i>
                 </button>
                 
-                {# FIXED IMAGE LOGIC #}
                 {% set main_img = product.image_url or product.image_url1 %}
                 {% if main_img.startswith('http') or main_img.startswith('/') %}
                     <img id="mainImg" src="{{ main_img }}" alt="{{ product.name }}" loading="eager" onerror="this.src='https://via.placeholder.com/600x800?text=Handcrafted+Art';">
@@ -556,7 +557,6 @@
             </div>
 
             <div class="thumbnail-gallery">
-                {# THUMBNAIL 1 #}
                 <div class="thumbnail active" onclick="changeImg(this.querySelector('img').src, this)">
                     {% if (product.image_url or product.image_url1).startswith('http') %}
                         <img src="{{ product.image_url or product.image_url1 }}" alt="View 1" loading="lazy">
@@ -565,7 +565,6 @@
                     {% endif %}
                 </div>
                 
-                {# THUMBNAIL 2 #}
                 {% if product.image_url2 %}
                 <div class="thumbnail" onclick="changeImg(this.querySelector('img').src, this)">
                     {% if product.image_url2.startswith('http') %}
@@ -576,7 +575,6 @@
                 </div>
                 {% endif %}
 
-                {# THUMBNAIL 3 #}
                 {% if product.image_url3 %}
                 <div class="thumbnail" onclick="changeImg(this.querySelector('img').src, this)">
                     {% if product.image_url3.startswith('http') %}
@@ -609,13 +607,13 @@
             <div class="description-box">
                 <span class="desc-title">The Masterpiece Story</span>
                 <p style="margin: 0; font-style: italic; font-size: 0.95rem;">
-                    {{ product.description or "A soul-stirring creation, hand-scribed with archival ink on premium vintage-textured paper. Every stroke captures an emotion that lasts forever." }}
+                    {{ product.description or "A soul-stirring creation, hand-scribed with archival ink on premium vintage-textured paper." }}
                 </p>
             </div>
 
             <div class="action-container btn-group-desktop">
-                <a href="{{ url_for('checkout_page', product_id=product._id|string) }}" class="btn-order" style="text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                    <i class="fas fa-shopping-bag"></i> Secure Checkout
+                <a href="javascript:void(0)" onclick="handleCheckoutClick()" class="btn-order">
+                    <i class="fas fa-shopping-bag"></i> Securely Checkout
                 </a>
                 
                 <a href="javascript:void(0)" class="btn-wa" onclick="openWhatsApp()">
@@ -657,18 +655,18 @@
             const mainImg = document.getElementById('mainImg');
             mainImg.classList.remove('animate__fadeIn');
             mainImg.src = url;
-            
-            // Re-trigger animation
             void mainImg.offsetWidth;
             mainImg.classList.add('animate__fadeIn');
-            
             document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
             el.classList.add('active');
         }
 
-        // 2. CHECKOUT LOGIC
+        // 2. FIXED CHECKOUT LOGIC
         function handleCheckoutClick() {
-            if ("{{ session.get('user_id', '') }}" === "") {
+            const userId = "{{ session.get('user_id', '') }}";
+            const productId = "{{ product._id|string }}"; // FIXED: _id|string
+
+            if (userId === "") {
                 Swal.fire({
                     title: 'Authentication Required',
                     text: "Please login to proceed with your order.",
@@ -676,47 +674,35 @@
                     showCancelButton: true,
                     confirmButtonColor: '#ff4d6d',
                     confirmButtonText: 'Login',
-                    cancelButtonText: 'Later',
-                    background: '#ffffff',
-                    customClass: {
-                        popup: 'rounded-popup'
-                    }
+                    cancelButtonText: 'Later'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         window.location.href = "{{ url_for('user_login') }}";
                     }
                 });
             } else {
-                window.location.href = "/checkout/{{ product.id }}";
+                // FIXED REDIRECT URL
+                window.location.href = "/checkout/" + productId;
             }
         }
 
         // 3. WHATSAPP CUSTOMIZATION
         function openWhatsApp() {
-            const msg = `Hi HeartScript! I'm interested in: {{ product.name }} (ID: {{ product.id }}). Can we discuss customization?`;
+            const msg = `Hi HeartScript! I'm interested in: {{ product.name }} (ID: {{ product._id|string }}). Can we discuss customization?`;
             window.open(`https://wa.me/916394174932?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        // 4. WISHLIST ENGINE (Local Storage Based)
+        // 4. WISHLIST ENGINE
         let wishlist = JSON.parse(localStorage.getItem('heartscript_wish')) || [];
 
         function toggleWishlistAction() {
-            const id = "{{ product.id }}";
+            const id = "{{ product._id|string }}";
             const idx = wishlist.findIndex(i => i.id === id);
-            
-            // Get current main image for wishlist
             const currentImg = document.getElementById('mainImg').src;
 
             if (idx > -1) {
                 wishlist.splice(idx, 1);
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'info',
-                    title: 'Removed from favorites',
-                    showConfirmButton: false,
-                    timer: 1500
-                });
+                Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: 'Removed', showConfirmButton: false, timer: 1500 });
             } else {
                 wishlist.push({
                     id: id,
@@ -724,15 +710,7 @@
                     price: "₹{{ product.price }}",
                     img: currentImg
                 });
-
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'success',
-                    title: 'Added to favorites!',
-                    showConfirmButton: false,
-                    timer: 2000
-                });
+                Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Added to favorites!', showConfirmButton: false, timer: 2000 });
             }
             localStorage.setItem('heartscript_wish', JSON.stringify(wishlist));
             updateWishlistDisplay();
@@ -742,24 +720,22 @@
             const list = document.getElementById('wish-list-items');
             const badge = document.getElementById('wish-count-badge');
             if (badge) badge.innerText = wishlist.length;
-            
             const btn = document.getElementById('heart-btn');
-            if (btn) btn.classList.toggle('active', wishlist.some(i => i.id === "{{ product.id }}"));
-            
+            if (btn) btn.classList.toggle('active', wishlist.some(i => i.id === "{{ product._id|string }}"));
             if (!list) return;
 
             if (wishlist.length === 0) {
-                list.innerHTML = '<div style="text-align:center; padding:40px; color:#ccc;"><i class="fas fa-heart-broken" style="font-size:2rem; display:block; margin-bottom:10px;"></i>Your Wishlist is Empty</div>';
+                list.innerHTML = '<div style="text-align:center; padding:40px; color:#ccc;">Your Wishlist is Empty</div>';
                 return;
             }
             list.innerHTML = wishlist.map((item, idx) => `
                 <div class="wish-item animate__animated animate__fadeInRight">
-                    <img src="${item.img}" onerror="this.src='https://via.placeholder.com/150?text=Art'">
+                    <img src="${item.img}">
                     <div style="flex:1">
-                        <h4 style="margin:0; font-size:0.85rem; color:var(--text-dark);">${item.name}</h4>
-                        <p style="color:var(--romantic-red); margin:0; font-weight:700; font-size:0.9rem;">${item.price}</p>
+                        <h4 style="margin:0; font-size:0.85rem;">${item.name}</h4>
+                        <p style="color:var(--romantic-red); margin:0; font-weight:700;">${item.price}</p>
                     </div>
-                    <i class="fas fa-times" onclick="removeFromWishlist(${idx})" style="cursor:pointer; color:#bbb; padding: 5px;"></i>
+                    <i class="fas fa-times" onclick="removeFromWishlist(${idx})" style="cursor:pointer; color:#bbb;"></i>
                 </div>
             `).join('');
         }
@@ -774,9 +750,7 @@
             document.getElementById('wishlist-sidebar').classList.toggle('open');
         }
 
-        // Initialize on load
         document.addEventListener('DOMContentLoaded', updateWishlistDisplay);
     </script>
-
 </body>
 </html>
