@@ -449,20 +449,27 @@ def add_product():
     try:
         image_urls = []
         for i in range(1, 4):
-            field_name = 'product_image' if i == 1 else f'product_image{i}'
+            # FIXED: HTML mein name 'product_image1' hai, isliye yahan bhi wahi dhoondenge
+            field_name = f'product_image{i}'
             img_file = request.files.get(field_name)
+            
+            # Manual URL check (agar file nahi hai toh URL uthao)
+            manual_url = request.form.get(f'manual_image_url{i}')
+
             if img_file and img_file.filename != '':
                 filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{i}_{secure_filename(img_file.filename)}"
                 img_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                 img_file.save(img_path)
-                image_urls.append(f"/static/uploads/{filename}")
+                image_urls.append(filename) # Sirf filename save karein path filter humne HTML mein lagaya hai
+            elif manual_url:
+                image_urls.append(manual_url)
             else:
-                image_urls.append("https://via.placeholder.com/300" if i==1 else "")
+                image_urls.append("")
 
         product_data = {
             "name": request.form.get('name'),
             "price": int(request.form.get('price')),
-            "image_url": image_urls[0],
+            "image_url": image_urls[0],  # Pehli image
             "image_url2": image_urls[1],
             "image_url3": image_urls[2],
             "description": request.form.get('description'),
