@@ -286,15 +286,22 @@
             <div class="product-card animate__animated animate__fadeInUp">
                 <div class="exclusive-tag">Exclusive</div>
                 <div class="img-container">
-                    {% set img_url = product.image_url or product.image or "" %}
-                    {% if img_url.startswith('http') %}
-                        <img src="{{ img_url }}" class="product-img" alt="{{ product.name }}" loading="lazy" onerror="this.src='https://via.placeholder.com/500x600?text=Reload+Image';">
-                    {% elif img_url %}
-                        <img src="{{ url_for('static', filename='uploads/' + img_url.split('/')[-1]) }}" 
-                             class="product-img" alt="{{ product.name }}" 
-                             onerror="this.src='https://via.placeholder.com/500x600?text=Handcrafted+Art';">
+                    {# Pehle check karo ki image_url hai, ya image_url1, ya sirf image #}
+                    {% set img_val = product.image_url or product.image_url1 or product.image or "" %}
+                    
+                    {% if img_val %}
+                        {% if img_val.startswith('http') %}
+                            {# Agar Direct URL hai (Manual URL) #}
+                            <img src="{{ img_val }}" class="product-img" alt="{{ product.name }}" onerror="this.src='https://via.placeholder.com/500x600?text=Reloading...';">
+                        {% else %}
+                            {# Agar Uploaded File hai #}
+                            <img src="{{ url_for('static', filename='uploads/' + img_val.split('/')[-1]) }}" 
+                                 class="product-img" alt="{{ product.name }}" 
+                                 onerror="this.src='https://via.placeholder.com/500x600?text=Handcrafted+Art';">
+                        {% endif %}
                     {% else %}
-                        <img src="https://via.placeholder.com/500x600?text=HeartScript+Masterpiece" class="product-img" alt="Placeholder">
+                        {# Agar kuch bhi nahi mila #}
+                        <img src="https://via.placeholder.com/500x600?text=No+Image+Found" class="product-img">
                     {% endif %}
                 </div>
                 <div class="product-info">
