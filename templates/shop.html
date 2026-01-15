@@ -286,21 +286,20 @@
             <div class="product-card animate__animated animate__fadeInUp">
                 <div class="exclusive-tag">Exclusive</div>
                 <div class="img-container">
-                    {% set img_val = product.image_url or product.image or "" %}
-                    {% if img_val.startswith('http') %}
-                        <img src="{{ img_val }}" class="product-img" alt="{{ product.name }}" onerror="this.src='https://via.placeholder.com/500x600?text=Reloading...';">
-                    {% elif img_val %}
-                        {# Hum yahan file name ko clean kar rahe hain taaki agar database me 'static/uploads/file.jpg' ho toh duplicate path na bane #}
-                        <img src="{{ url_for('static', filename='uploads/' + img_val.split('/')[-1]) }}" 
+                    {% set img_url = product.image_url or product.image or "" %}
+                    {% if img_url.startswith('http') %}
+                        <img src="{{ img_url }}" class="product-img" alt="{{ product.name }}" loading="lazy" onerror="this.src='https://via.placeholder.com/500x600?text=Reload+Image';">
+                    {% elif img_url %}
+                        <img src="{{ url_for('static', filename='uploads/' + img_url.split('/')[-1]) }}" 
                              class="product-img" alt="{{ product.name }}" 
-                             onerror="this.src='https://via.placeholder.com/500x600?text=Art+Loading...';">
+                             onerror="this.src='https://via.placeholder.com/500x600?text=Handcrafted+Art';">
                     {% else %}
-                        <img src="https://via.placeholder.com/500x600?text=HeartScript+Art" class="product-img">
+                        <img src="https://via.placeholder.com/500x600?text=HeartScript+Masterpiece" class="product-img" alt="Placeholder">
                     {% endif %}
-                    </div>
+                </div>
                 <div class="product-info">
                     <h3>{{ product.name }}</h3>
-                    <p>{{ product.description[:90] if product.description else 'Exquisite calligraphy handcrafted on museum-grade premium paper.' }}...</p>
+                    <p>{{ product.description[:90] if product.description else 'Exquisite calligraphy handcrafted on museum-grade premium paper for your special moments.' }}...</p>
 
                     <div class="price-row">
                         <span class="price">₹{{ product.price }}</span>
@@ -310,7 +309,7 @@
                     </div>
 
                     <div class="btn-actions">
-                        <a href="{{ url_for('product_view', product_id=product['_id']|string) }}" class="btn-view-details">
+                        <a href="{{ url_for('product_view', product_id=product['_id']) }}" class="btn-view-details" title="View Full Art">
                             <i class="fas fa-expand-alt"></i>
                         </a>
                         <button class="btn-order-quick" onclick="handleQuickOrder('{{ product.name }}', '{{ product.price }}')">
@@ -323,6 +322,7 @@
             <div style="grid-column: 1/-1; text-align: center; padding: 100px 20px;">
                 <i class="fas fa-feather-alt" style="font-size: 3.5rem; color: #ffccd5; margin-bottom: 20px;"></i>
                 <h3 style="font-family: 'Playfair Display'; color: #ffccd5;">New Artworks Scribing...</h3>
+                <p>Check back in a few moments for our latest handwritten collections.</p>
             </div>
             {% endfor %}
         </div>
@@ -332,26 +332,48 @@
         <div class="modal-content">
             <div style="width: 45px; height: 5px; background: #ddd; border-radius: 10px; margin: 0 auto 25px;"></div>
             <span onclick="closeCheckout()" style="position:absolute; top:25px; right:25px; font-size:26px; color:#bbb; cursor: pointer;"><i class="fas fa-times-circle"></i></span>
+
             <h2 style="text-align: center; font-family: 'Playfair Display', serif; color: var(--deep-rose);">Quick Checkout</h2>
-            <p id="item-info" style="text-align:center; font-weight:700; color: var(--romantic-red);"></p>
+            <p id="item-info" style="text-align:center; font-weight:700; color: var(--romantic-red); font-size: 1.1rem; margin-bottom: 25px;"></p>
 
-            <input type="text" id="cust_name" placeholder="Full Name" value="{{ session.get('user_name', '') }}">
-            <input type="tel" id="cust_phone" placeholder="WhatsApp Number">
-            <textarea id="cust_address" placeholder="Full Delivery Address" rows="2"></textarea>
-            <textarea id="cust_details" placeholder="What should we write?" rows="3" style="border: 1.5px dashed var(--romantic-red);"></textarea>
+            <input type="text" id="cust_name" placeholder="Receiver's / Your Name" value="{{ session.get('user_name', '') }}" required>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <input type="tel" id="cust_phone" placeholder="WhatsApp Number" required>
+                <input type="text" id="cust_pincode" placeholder="Delivery Pincode" maxlength="6">
+            </div>
 
-            <button class="btn-submit" id="submit-btn" onclick="submitOrder()">Place COD Order</button>
+            <textarea id="cust_address" placeholder="Full Delivery Address (House No, Street, Landmark, City)" rows="2" required></textarea>
+
+            <p style="font-size: 0.75rem; font-weight: 800; color: var(--text-muted); margin: 15px 0 5px; text-transform: uppercase; letter-spacing: 1px;">
+                <i class="fas fa-feather"></i> Scripting Details:
+            </p>
+            <textarea id="cust_details" placeholder="What should our artists write? (E.g. Love Letter for Rohan, Birthday Poem for Simran...)" rows="3" style="border: 1.5px dashed var(--romantic-red); background: #fffafb;"></textarea>
+
+            <button class="btn-submit" id="submit-btn" onclick="submitOrder()">
+                Place Cash on Delivery Order
+            </button>
+            
+            <p style="text-align: center; font-size: 0.8rem; color: var(--text-muted); margin-top: 18px;">
+                <i class="fab fa-whatsapp" style="color: #25d366;"></i> Proof will be shared on WhatsApp before shipping.
+            </p>
         </div>
     </div>
 
     <footer>
         <div class="footer-logo">HeartScript</div>
+        <p style="font-size: 0.95rem; line-height: 1.7; max-width: 400px; margin: 0 auto;">Preserving your most precious emotions through the timeless elegance of handwriting.</p>
+        
         <div style="margin: 30px 0;">
             <a href="{{ url_for('home') }}" class="btn-return-home">
                 <i class="fas fa-arrow-left"></i> Back to Gallery
             </a>
         </div>
-        <p style="opacity: 0.7; font-size: 0.85rem;">© 2026 HEARTSCRIPT ARTISTRY.</p>
+
+        <div style="margin: 30px 0;">
+            <a href="#" style="color: var(--romantic-red); font-size: 1.8rem; margin: 0 15px;"><i class="fab fa-instagram"></i></a>
+            <a href="#" style="color: var(--romantic-red); font-size: 1.8rem; margin: 0 15px;"><i class="fab fa-facebook"></i></a>
+        </div>
+        <p style="opacity: 0.7; font-size: 0.85rem; color: var(--text-muted); letter-spacing: 1px;">© 2026 HEARTSCRIPT ARTISTRY. HAND-SCRIBED WITH LOVE 💞.</p>
     </footer>
 
     <a href="https://wa.me/916394174932" class="whatsapp-float" target="_blank">
@@ -360,26 +382,45 @@
 
     <script>
         let selectedProduct = { name: "", price: "" };
+
         function handleQuickOrder(name, price) {
             selectedProduct = { name: name, price: price };
             document.getElementById('item-info').innerText = `${name} • ₹${price}`;
             document.getElementById('modal-overlay').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
         }
-        function closeCheckout() { document.getElementById('modal-overlay').style.display = 'none'; }
+
+        function closeCheckout() {
+            document.getElementById('modal-overlay').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        window.onclick = function(event) {
+            let modal = document.getElementById('modal-overlay');
+            if (event.target == modal) closeCheckout();
+        }
 
         async function submitOrder() {
             const btn = document.getElementById('submit-btn');
             const orderData = {
                 name: document.getElementById('cust_name').value.trim(),
+                email: "{{ session.get('user_email', 'guest@heartscript.com') }}",
                 phone: document.getElementById('cust_phone').value.trim(),
+                house_no: "N/A",
+                pincode: document.getElementById('cust_pincode').value.trim() || "000000",
                 address: document.getElementById('cust_address').value.trim(),
-                custom_details: document.getElementById('cust_details').value.trim(),
+                custom_details: document.getElementById('cust_details').value.trim() || "Standard Handwritten Script",
                 items: selectedProduct.name,
                 total: String(selectedProduct.price)
             };
 
-            if(!orderData.name || !orderData.phone || !orderData.address) { alert("Fill all details!"); return; }
-            btn.disabled = true; btn.innerHTML = 'Placing Order...';
+            if(!orderData.name || !orderData.phone || !orderData.address) {
+                alert("Please provide Delivery Name, Phone and Address!");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Preparing your Paper...';
 
             try {
                 const response = await fetch('/submit_order', {
@@ -387,11 +428,24 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(orderData)
                 });
+                
                 const resData = await response.json();
-                if (resData.order_id) window.location.href = "/thank_you/" + resData.order_id;
-                else { alert(resData.message); btn.disabled = false; }
-            } catch (err) { alert("Error!"); btn.disabled = false; }
+                
+                if (resData.order_id) {
+                    window.location.href = "/thank_you/" + resData.order_id;
+                } else {
+                    alert("Order Issue: " + resData.message);
+                    btn.disabled = false;
+                    btn.innerText = "Try Placing Order Again";
+                }
+            } catch (err) {
+                console.error("Error:", err);
+                alert("Connection lost. Please check your internet and try again.");
+                btn.disabled = false;
+                btn.innerText = "Place Cash on Delivery Order";
+            }
         }
     </script>
+
 </body>
 </html>
