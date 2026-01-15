@@ -9,7 +9,7 @@
     <meta name="description" content="Get premium handwritten {{ product.name }} from HeartScript. Custom calligraphy and emotional art pieces.">
     <meta property="og:title" content="{{ product.name }} | HeartScript">
     <meta property="og:description" content="Customized handwritten art masterpiece.">
-    <meta property="og:image" content="{{ product.image_url1 or product.image_url }}">
+    <meta property="og:image" content="{{ product.image_url or product.image_url1 }}">
     <meta property="og:type" content="product">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -545,23 +545,45 @@
                 <button id="heart-btn" class="wishlist-btn" onclick="toggleWishlistAction()">
                     <i class="fas fa-heart"></i>
                 </button>
-                <img id="mainImg" src="{{ product.image_url1 or product.image_url }}" alt="{{ product.name }}" loading="eager">
+                
+                {# FIXED IMAGE LOGIC #}
+                {% set main_img = product.image_url or product.image_url1 %}
+                {% if main_img.startswith('http') or main_img.startswith('/') %}
+                    <img id="mainImg" src="{{ main_img }}" alt="{{ product.name }}" loading="eager" onerror="this.src='https://via.placeholder.com/600x800?text=Handcrafted+Art';">
+                {% else %}
+                    <img id="mainImg" src="{{ url_for('static', filename='uploads/' + main_img.split('/')[-1]) }}" alt="{{ product.name }}" loading="eager" onerror="this.src='https://via.placeholder.com/600x800?text=Handcrafted+Art';">
+                {% endif %}
             </div>
 
             <div class="thumbnail-gallery">
-                <div class="thumbnail active" onclick="changeImg('{{ product.image_url1 or product.image_url }}', this)">
-                    <img src="{{ product.image_url1 or product.image_url }}" alt="View 1" loading="lazy">
+                {# THUMBNAIL 1 #}
+                <div class="thumbnail active" onclick="changeImg(this.querySelector('img').src, this)">
+                    {% if (product.image_url or product.image_url1).startswith('http') %}
+                        <img src="{{ product.image_url or product.image_url1 }}" alt="View 1" loading="lazy">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='uploads/' + (product.image_url or product.image_url1).split('/')[-1]) }}" alt="View 1" loading="lazy">
+                    {% endif %}
                 </div>
                 
+                {# THUMBNAIL 2 #}
                 {% if product.image_url2 %}
-                <div class="thumbnail" onclick="changeImg('{{ product.image_url2 }}', this)">
-                    <img src="{{ product.image_url2 }}" alt="View 2" loading="lazy">
+                <div class="thumbnail" onclick="changeImg(this.querySelector('img').src, this)">
+                    {% if product.image_url2.startswith('http') %}
+                        <img src="{{ product.image_url2 }}" alt="View 2" loading="lazy">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='uploads/' + product.image_url2.split('/')[-1]) }}" alt="View 2" loading="lazy">
+                    {% endif %}
                 </div>
                 {% endif %}
 
+                {# THUMBNAIL 3 #}
                 {% if product.image_url3 %}
-                <div class="thumbnail" onclick="changeImg('{{ product.image_url3 }}', this)">
-                    <img src="{{ product.image_url3 }}" alt="View 3" loading="lazy">
+                <div class="thumbnail" onclick="changeImg(this.querySelector('img').src, this)">
+                    {% if product.image_url3.startswith('http') %}
+                        <img src="{{ product.image_url3 }}" alt="View 3" loading="lazy">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='uploads/' + product.image_url3.split('/')[-1]) }}" alt="View 3" loading="lazy">
+                    {% endif %}
                 </div>
                 {% endif %}
             </div>
@@ -680,6 +702,10 @@
         function toggleWishlistAction() {
             const id = "{{ product.id }}";
             const idx = wishlist.findIndex(i => i.id === id);
+            
+            // Get current main image for wishlist
+            const currentImg = document.getElementById('mainImg').src;
+
             if (idx > -1) {
                 wishlist.splice(idx, 1);
                 Swal.fire({
@@ -695,7 +721,7 @@
                     id: id,
                     name: "{{ product.name }}",
                     price: "₹{{ product.price }}",
-                    img: "{{ product.image_url1 or product.image_url }}"
+                    img: currentImg
                 });
 
                 Swal.fire({
@@ -727,7 +753,7 @@
             }
             list.innerHTML = wishlist.map((item, idx) => `
                 <div class="wish-item animate__animated animate__fadeInRight">
-                    <img src="${item.img}" onerror="this.src='/static/images/placeholder.jpg'">
+                    <img src="${item.img}" onerror="this.src='https://via.placeholder.com/150?text=Art'">
                     <div style="flex:1">
                         <h4 style="margin:0; font-size:0.85rem; color:var(--text-dark);">${item.name}</h4>
                         <p style="color:var(--romantic-red); margin:0; font-weight:700; font-size:0.9rem;">${item.price}</p>
@@ -752,5 +778,4 @@
     </script>
 
 </body>
-
 </html>
