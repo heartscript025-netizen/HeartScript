@@ -614,9 +614,10 @@
             </div>
 
             <div class="action-container btn-group-desktop">
-                <button class="btn-order" onclick="handleCheckoutClick()">
+                <a href="{{ url_for('checkout_page', product_id=product._id|string) }}" class="btn-order" style="text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px;">
                     <i class="fas fa-shopping-bag"></i> Secure Checkout
-                </button>
+                </a>
+                
                 <a href="javascript:void(0)" class="btn-wa" onclick="openWhatsApp()">
                     <i class="fab fa-whatsapp"></i> <span>Customise via WhatsApp</span>
                 </a>
